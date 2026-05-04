@@ -1,0 +1,242 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  #app {
+    min-height: 540px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem 1rem; text-align: center;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+  }
+  .avatar-wrap { margin-bottom: 1.2rem; }
+  .question { font-size: 24px; font-weight: 900; color: #be185d; margin-bottom: 0.4rem; line-height: 1.3; }
+  .subtitle { font-size: 15px; color: #f472b6; margin-bottom: 0.5rem; min-height: 22px; }
+  .locked-hint { font-size: 12px; color: #f9a8d4; margin-bottom: 1.4rem; min-height: 18px; }
+  .btn-row {
+    display: flex; flex-direction: row;
+    gap: 1.2rem; align-items: center; justify-content: center;
+    width: 100%;
+  }
+  .btn-yes {
+    border-radius: 999px; padding: 13px 34px; font-size: 18px; font-weight: 700;
+    font-family: inherit; border: none;
+    background: #ddd; color: #aaa; cursor: not-allowed;
+    transition: font-size 0.3s, padding 0.3s, background 0.4s, color 0.4s, box-shadow 0.4s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-yes.unlocked {
+    background: linear-gradient(135deg, #f472b6, #ec4899);
+    color: white; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(236,72,153,0.35);
+  }
+  .btn-yes.unlocked:hover { transform: scale(1.07); }
+  .btn-no {
+    background: white; color: #f472b6;
+    border: 2px solid #f9a8d4; border-radius: 999px;
+    padding: 10px 24px; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    flex-shrink: 0;
+    transition: font-size 0.2s, padding 0.2s, opacity 0.3s;
+  }
+  .btn-no:hover { background: #fff0f6; }
+  .btn-no.fixed-mode { position: fixed; z-index: 999; }
+  .success-screen {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .success-screen.visible { display: flex; }
+  .success-emoji { font-size: 72px; }
+  .success-text { font-size: 28px; font-weight: 900; color: #be185d; }
+  .success-sub { font-size: 16px; color: #f472b6; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes blink {
+    0%,90%,100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.05); }
+  }
+  @keyframes bobble {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .guy-svg { animation: bobble 2.5s ease-in-out infinite; }
+  .eye-group { animation: blink 3.5s ease-in-out infinite; transform-origin: center; }
+  .hearts { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+  .heart { position: absolute; font-size: 20px; animation: floatUp 2s ease-in forwards; opacity: 0; }
+  @keyframes floatUp {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-300px) scale(1.4); }
+  }
+  #main-view { display: flex; flex-direction: column; align-items: center; width: 100%; }
+</style>
+
+<div id="app">
+  <div id="main-view">
+    <div class="avatar-wrap">
+      <svg class="guy-svg" width="130" height="150" viewBox="0 0 130 150" xmlns="http://www.w3.org/2000/svg">
+        <!-- Body / shirt -->
+        <ellipse cx="65" cy="138" rx="38" ry="22" fill="#e63946"/>
+        <!-- Neck -->
+        <rect x="55" y="108" width="20" height="16" rx="6" fill="#d4956a"/>
+        <!-- Head -->
+        <ellipse cx="65" cy="85" rx="38" ry="42" fill="#d4956a"/>
+        <!-- Hair top -->
+        <ellipse cx="65" cy="47" rx="38" ry="14" fill="#2b1a0e"/>
+        <rect x="27" y="47" width="76" height="10" fill="#2b1a0e"/>
+        <!-- Ears -->
+        <ellipse cx="27" cy="87" rx="7" ry="9" fill="#c4845a"/>
+        <ellipse cx="103" cy="87" rx="7" ry="9" fill="#c4845a"/>
+        <!-- Eyebrows thick -->
+        <rect x="36" y="64" width="22" height="6" rx="3" fill="#2b1a0e"/>
+        <rect x="72" y="64" width="22" height="6" rx="3" fill="#2b1a0e"/>
+        <!-- Eyes white -->
+        <ellipse cx="47" cy="78" rx="10" ry="9" fill="white"/>
+        <ellipse cx="83" cy="78" rx="10" ry="9" fill="white"/>
+        <!-- Pupils -->
+        <g class="eye-group">
+          <ellipse cx="47" cy="79" rx="5" ry="5" fill="#1a0a00"/>
+          <ellipse cx="83" cy="79" rx="5" ry="5" fill="#1a0a00"/>
+          <!-- Eye shine -->
+          <circle cx="49" cy="77" r="1.5" fill="white"/>
+          <circle cx="85" cy="77" r="1.5" fill="white"/>
+        </g>
+        <!-- Nose -->
+        <ellipse cx="65" cy="91" rx="7" ry="5" fill="#c4845a"/>
+        <circle cx="61" cy="93" r="3" fill="#b87050"/>
+        <circle cx="69" cy="93" r="3" fill="#b87050"/>
+        <!-- Beard -->
+        <ellipse cx="65" cy="108" rx="30" ry="16" fill="#2b1a0e"/>
+        <!-- Mustache big curved -->
+        <path d="M38 99 Q52 108 65 103 Q78 108 92 99" stroke="#1a0a00" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <!-- Mustache highlight curls -->
+        <path d="M38 99 Q44 94 50 98" stroke="#3d2510" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M92 99 Q86 94 80 98" stroke="#3d2510" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Smile inside beard -->
+        <path d="M52 109 Q65 118 78 109" stroke="#c4845a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Shirt collar -->
+        <path d="M48 124 L65 134 L82 124" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="question">wanna go to brunch with parlero? 🥞</div>
+    <div class="subtitle" id="subtitle">think carefully before you answer...</div>
+    <div class="locked-hint" id="locked-hint">&nbsp;</div>
+    <div class="btn-row" id="btn-row">
+      <button class="btn-yes" id="btn-yes">claro</button>
+      <button class="btn-no" id="btn-no">no</button>
+    </div>
+  </div>
+  <div class="success-screen" id="success-screen">
+    <div class="success-emoji">🥂</div>
+    <div class="success-text">ehehehe I knew it</div>
+    <div class="success-sub">brunch szn let's gooo 🥞✨</div>
+  </div>
+</div>
+<div class="hearts" id="hearts"></div>
+
+<script>
+  const noBtn = document.getElementById('btn-no');
+  const yesBtn = document.getElementById('btn-yes');
+  const subtitle = document.getElementById('subtitle');
+  const lockedHint = document.getElementById('locked-hint');
+  const successScreen = document.getElementById('success-screen');
+  const mainView = document.getElementById('main-view');
+  const heartsEl = document.getElementById('hearts');
+
+  const UNLOCK_AT = 3;
+
+  const stages = [
+    { no: 'no',            sub: 'think carefully before you answer...' },
+    { no: 'are you sure?', sub: 'are you really sure about that? 😟' },
+    { no: 'nope',          sub: 'parlero is sad now 😢' },
+    { no: 'still no',      sub: 'ok but the mimosas are calling... 🍊' },
+    { no: 'ugh fine',      sub: 'this is your LAST chance bestie 😤' },
+    { no: '...',           sub: 'the yes button is growing for a reason 👀' },
+  ];
+
+  const yesNudges = [
+    'psst… click no first 😏',
+    'not yet!! say no again 🙈',
+    'more nos first 😤',
+  ];
+
+  const yesSizes = ['18px','22px','27px','32px','38px','44px'];
+  const yesPads  = ['13px 34px','15px 42px','17px 50px','19px 58px','21px 66px','23px 74px'];
+
+  let count = 0;
+  let running = false;
+  let noBtnFixed = false;
+  let nudgeIdx = 0;
+  let yesClickedWhileLocked = false;
+
+  function fixNoBtn() {
+    const rect = noBtn.getBoundingClientRect();
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+    noBtn.classList.add('fixed-mode');
+    noBtnFixed = true;
+  }
+
+  function runAway() {
+    const margin = 16;
+    const bw = noBtn.offsetWidth + margin;
+    const bh = noBtn.offsetHeight + margin;
+    const newX = Math.random() * (window.innerWidth - bw - margin) + margin;
+    const newY = Math.random() * (window.innerHeight - bh - margin) + margin;
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+    noBtn.style.right = 'auto';
+    noBtn.style.bottom = 'auto';
+  }
+
+  yesBtn.addEventListener('click', () => {
+    if (!yesBtn.classList.contains('unlocked')) {
+      subtitle.textContent = yesNudges[nudgeIdx % yesNudges.length];
+      nudgeIdx++;
+      return;
+    }
+    mainView.style.display = 'none';
+    successScreen.classList.add('visible');
+    noBtn.style.display = 'none';
+    for (let i = 0; i < 20; i++) setTimeout(spawnHeart, i * 120);
+  });
+
+  noBtn.addEventListener('click', () => {
+    if (!noBtnFixed) fixNoBtn();
+    count = Math.min(count + 1, stages.length - 1);
+    const s = stages[count];
+    noBtn.textContent = s.no;
+    subtitle.textContent = s.sub;
+
+    if (count >= UNLOCK_AT) {
+      running = true;
+      runAway();
+      yesBtn.classList.add('unlocked');
+      lockedHint.textContent = '';
+      yesBtn.style.fontSize = yesSizes[count] || yesSizes[yesSizes.length-1];
+      yesBtn.style.padding = yesPads[count] || yesPads[yesPads.length-1];
+    }
+
+    if (count === stages.length - 1) {
+      noBtn.style.fontSize = '11px';
+      noBtn.style.padding = '6px 12px';
+      noBtn.style.opacity = '0.3';
+    }
+  });
+
+  noBtn.addEventListener('mouseenter', () => {
+    if (running) runAway();
+  });
+
+  function spawnHeart() {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = ['💕','💗','🩷','💖','🌸'][Math.floor(Math.random()*5)];
+    h.style.left = Math.random() * 100 + '%';
+    h.style.top = '80%';
+    h.style.animationDelay = Math.random() * 0.5 + 's';
+    heartsEl.appendChild(h);
+    setTimeout(() => h.remove(), 2500);
+  }
+</script>
